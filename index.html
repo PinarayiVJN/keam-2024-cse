@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collage Data Table</title>
-    <!-- Tailwind CSS CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom styles for better aesthetics */
@@ -15,8 +17,9 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1rem; /* Adjust padding for better mobile fit */
             box-sizing: border-box;
+            overflow-x: hidden; /* Prevent body horizontal scroll */
         }
         .container {
             background: rgba(30, 41, 59, 0.9);
@@ -24,14 +27,17 @@
             border: 1px solid rgba(71, 85, 105, 0.3);
             border-radius: 1rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            padding: 2rem;
+            padding: 1.5rem; /* Adjust padding for better mobile fit */
             width: 100%;
             max-width: 1200px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
         }
         th, td {
-            padding: 1rem;
+            padding: 0.8rem 1rem; /* Slightly reduced padding for compactness */
             text-align: left;
             border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+            white-space: nowrap; /* Prevent text wrapping in cells by default */
         }
         th {
             background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
@@ -40,6 +46,9 @@
             text-transform: uppercase;
             font-size: 0.875rem;
             letter-spacing: 0.05em;
+            position: sticky; /* Make table headers sticky */
+            top: 0; /* Stick to the top of its scrolling container */
+            z-index: 10; /* Ensure it's above other table content */
         }
         tr:last-child td {
             border-bottom: none;
@@ -47,12 +56,14 @@
         .table-scroll-container {
             max-height: 70vh;
             overflow-y: auto;
+            overflow-x: auto; /* THIS IS THE KEY CHANGE for horizontal scroll */
             border-radius: 0.75rem;
             scrollbar-width: thin;
             scrollbar-color: #4b5563 #1e293b;
         }
         .table-scroll-container::-webkit-scrollbar {
             width: 8px;
+            height: 8px; /* For horizontal scrollbar */
         }
         .table-scroll-container::-webkit-scrollbar-track {
             background: #1e293b;
@@ -66,7 +77,7 @@
             background: #6b7280;
         }
         .rank-column {
-            width: 80px;
+            width: 80px; /* Keep fixed width for rank column */
             text-align: center;
             font-weight: 600;
             color: #3b82f6;
@@ -79,89 +90,94 @@
             font-weight: 600;
             color: #f59e0b;
         }
-        /* Responsive table behavior */
+
+        /* Utility for glowing input focus */
+        .glow-focus:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Blue glow */
+        }
+
+        /* Responsive adjustments for overall layout (not table structure) */
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
             }
-            thead {
-                display: none;
+            body {
+                padding: 0.5rem;
             }
-            tr {
-                border: 1px solid rgba(71, 85, 105, 0.3);
-                margin-bottom: 1rem;
-                border-radius: 0.5rem;
-                overflow: hidden;
-                display: block;
-                background: rgba(51, 65, 85, 0.5);
+            .text-3xl {
+                font-size: 2rem; /* Slightly smaller heading on small screens */
             }
-            td {
-                border: none;
-                position: relative;
-                padding-left: 50%;
-                text-align: right;
-                display: block;
-                padding-top: 0.75rem;
-                padding-bottom: 0.75rem;
+            .text-sm {
+                font-size: 0.875rem;
             }
-            td:before {
-                position: absolute;
-                top: 0.75rem;
-                left: 1rem;
-                width: 45%;
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: 600;
-                color: #94a3b8;
+            .py-2\.5 { /* Adjust button padding */
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+
+            /* --- Specific change for College Name to break into 2 lines --- */
+            td.college-name {
+                white-space: normal; /* Allow text to wrap */
+                word-break: break-word; /* Break long words if necessary */
+                max-width: 150px; /* Adjust max-width as needed for optimal line breaking */
+                min-width: 200px; /* Ensure a minimum width */
+            }
+            /* Adjust the header for "College Name" as well for consistency */
+            th:nth-child(3) { /* Assuming "Name of College" is the 3rd column */
+                 white-space: normal;
+                 min-width: 100px; /* Keep consistent with td */
             }
         }
     </style>
 </head>
 <body class="antialiased">
     <div class="container">
-        <h1 class="text-4xl font-bold text-white mb-2 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            Collage Data Rankings
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            College Data Rankings
         </h1>
-        <p class="text-center text-gray-400 mb-8">Ranked by SM (lowest to highest)</p>
+        <p class="text-center text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">Ranked by SM (lowest to highest)</p>
         
-        <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
-            <div class="relative w-full md:w-96">
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-6">
+            <div class="relative w-full sm:w-96">
                 <input 
                     type="text" 
                     id="search-input" 
                     placeholder="Search colleges by name..." 
-                    class="w-full px-4 py-3 pl-12 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                    class="w-full px-4 py-2.5 pl-12 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 glow-focus"
+                    aria-label="Search colleges"
                 >
-                <svg class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="absolute left-4 top-2.5 sm:top-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <button 
                     id="clear-search" 
-                    class="absolute right-3 top-3.5 h-5 w-5 text-gray-400 hover:text-white transition duration-200 hidden"
+                    class="absolute right-3 top-2.5 sm:top-3 h-5 w-5 text-gray-400 hover:text-white transition duration-200 hidden"
+                    aria-label="Clear search"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <button id="sort-toggle-button" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl">
+            <button id="sort-toggle-button" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75" aria-live="polite">
                 Sort SM: Low to High
             </button>
         </div>
         
-        <div id="search-results-info" class="text-center text-gray-400 mb-4 hidden">
+        <div id="search-results-info" class="text-center text-gray-400 mb-4 text-sm hidden" role="status" aria-live="polite">
             <span id="results-count"></span>
         </div>
         
-        <div id="table-container" class="table-scroll-container overflow-x-auto">
+        <div id="table-container" class="table-scroll-container">
             <p id="loading-message" class="text-center text-gray-400 py-8">
-                <span class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2"></span>
-                Loading collage data from CS.json...
+                <span class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2" role="status" aria-label="Loading"></span>
+                Loading college data from CS.json...
             </p>
         </div>
         
-        <div id="error-message" class="text-center text-red-400 mt-4 hidden bg-red-900/20 border border-red-500/30 rounded-lg p-4"></div>
+        <div id="error-message" class="text-center text-red-400 mt-4 hidden bg-red-900/20 border border-red-500/30 rounded-lg p-4" role="alert"></div>
     </div>
 
     <script>
@@ -170,11 +186,16 @@
         const loadingMessage = document.getElementById('loading-message');
         const errorMessage = document.getElementById('error-message');
         const sortToggleButton = document.getElementById('sort-toggle-button');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchButton = document.getElementById('clear-search');
+        const searchResultsInfo = document.getElementById('search-results-info');
+        const resultsCountSpan = document.getElementById('results-count');
 
         let isAscendingSort = true; // State to track current sort order
         let originalData = []; // Store original data
         let filteredData = []; // Store filtered data for search
         let currentSearchTerm = ''; // Store current search term
+        let searchTimeout; // For debouncing search input
 
         // Define the order of columns and their display names
         const columns = [
@@ -183,15 +204,18 @@
             { key: "Name of College", header: "College Name" },
             { key: "SM", header: "SM Rank" },
             { key: "EW", header: "EW Rank" },
-            { key: "CS EWS", header: "CS EWS" } // Added CS EWS column
+            { key: "CS EWS", header: "CS EWS" }
         ];
 
-        async function renderTable(collagesData) {
-            tableContainer.innerHTML = ''; // Clear previous content
-
-            // Create the table element
+        /**
+         * Renders the table with the given college data.
+         * @param {Array} collagesData - The array of college objects to display.
+         */
+        function renderTable(collagesData) {
+            const fragment = document.createDocumentFragment();
             const table = document.createElement('table');
             table.classList.add('min-w-full', 'table-auto', 'border-collapse');
+            table.setAttribute('role', 'table');
 
             // Create table header
             const thead = document.createElement('thead');
@@ -212,203 +236,175 @@
             collagesData.forEach((collage, index) => {
                 const row = document.createElement('tr');
                 row.classList.add('hover:bg-slate-700/50', 'transition-colors', 'duration-200');
+                row.setAttribute('role', 'row');
 
                 columns.forEach((col, colIndex) => {
                     const td = document.createElement('td');
+                    td.setAttribute('role', 'cell');
                     
+                    let displayValue = 'N/A';
+                    let additionalClass = '';
+
                     if (col.key === "rank") {
-                        td.textContent = index + 1;
-                        td.classList.add('rank-column');
+                        displayValue = index + 1;
+                        additionalClass = 'rank-column';
                     } else if (col.key === "College Code") {
-                        td.textContent = collage[col.key] || 'N/A';
-                        td.classList.add('college-code');
-                    } else if (col.key === "SM" || col.key === "EW" || col.key === "CS EWS") { // Added CS EWS here
+                        displayValue = collage[col.key] || 'N/A';
+                        additionalClass = 'college-code';
+                    } else if (col.key === "Name of College") { // --- Specific change for College Name ---
+                        displayValue = collage[col.key] || 'N/A';
+                        additionalClass = 'college-name text-gray-200'; // Add new class
+                    } else if (["SM", "EW", "CS EWS"].includes(col.key)) {
                         const value = collage[col.key];
-                        if (value === null || value === undefined) {
-                            td.textContent = 'N/A';
-                            td.classList.add('text-gray-500', 'italic');
+                        if (value === null || value === undefined || value === '') {
+                            displayValue = 'N/A';
+                            additionalClass = 'text-gray-500 italic';
                         } else {
-                            td.textContent = value;
-                            td.classList.add('rank-value');
+                            displayValue = value;
+                            additionalClass = 'rank-value';
                         }
                     } else {
-                        const value = collage[col.key];
-                        td.textContent = value || 'N/A';
-                        td.classList.add('text-gray-200');
+                        displayValue = collage[col.key] || 'N/A';
+                        additionalClass = 'text-gray-200';
                     }
                     
-                    td.classList.add('py-3', 'px-4');
+                    td.textContent = displayValue;
+                    td.classList.add('py-3', 'px-4', ...additionalClass.split(' '));
                     row.appendChild(td);
                 });
                 tbody.appendChild(row);
             });
             table.appendChild(tbody);
 
-            tableContainer.appendChild(table);
-
-            // Add responsive labels
-            addResponsiveLabels();
+            tableContainer.innerHTML = '';
+            fragment.appendChild(table);
+            tableContainer.appendChild(fragment);
         }
 
-        function addResponsiveLabels() {
-            // Remove existing responsive rules
-            const styleSheets = document.styleSheets;
-            for (let sheet of styleSheets) {
-                try {
-                    for (let i = sheet.cssRules.length - 1; i >= 0; i--) {
-                        if (sheet.cssRules[i].cssText && 
-                            sheet.cssRules[i].cssText.includes('td:nth-of-type') && 
-                            sheet.cssRules[i].cssText.includes('@media (max-width: 768px)')) {
-                            sheet.deleteRule(i);
-                        }
-                    }
-                } catch (e) {
-                    // Cross-origin or other access issues, skip
-                }
-            }
-
-            // Add new responsive rules
-            const style = document.createElement('style');
-            let responsiveCSS = '';
-            columns.forEach((col, index) => {
-                responsiveCSS += `
-                    @media (max-width: 768px) {
-                        td:nth-of-type(${index + 1}):before { content: "${col.header}: "; }
-                    }
-                `;
-            });
-            style.textContent = responsiveCSS;
-            document.head.appendChild(style);
-        }
-
+        /**
+         * Fetches and loads college data from CS.json.
+         */
         async function loadCollageData() {
-            try {
-                loadingMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
+            loadingMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            tableContainer.classList.add('hidden');
 
-                // Try to fetch CS.json file
+            try {
                 const response = await fetch('./CS.json');
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}. Make sure CS.json exists in the same directory as this HTML file.`);
+                    throw new Error(`HTTP error! status: ${response.status}.`);
                 }
 
                 const data = await response.json();
                 
                 if (!Array.isArray(data)) {
-                    throw new Error('CS.json should contain an array of college data');
+                    throw new Error('CS.json should contain an array of college data.');
                 }
 
                 if (data.length === 0) {
-                    throw new Error('CS.json is empty');
+                    throw new Error('CS.json is empty.');
                 }
 
-                // Validate required fields - only College Code and Name are truly required
                 const requiredFields = ['College Code', 'Name of College'];
-                const missingFields = requiredFields.filter(field => 
-                    !data[0].hasOwnProperty(field)
+                const hasAllRequiredFields = data.every(item => 
+                    requiredFields.every(field => item.hasOwnProperty(field))
                 );
-                
-                if (missingFields.length > 0) {
-                    throw new Error(`Missing required fields in CS.json: ${missingFields.join(', ')}`);
+
+                if (!hasAllRequiredFields) {
+                    throw new Error(`One or more entries in CS.json are missing required fields (e.g., 'College Code', 'Name of College').`);
                 }
 
                 originalData = data;
-                filteredData = data; // Initialize filtered data
+                filteredData = data;
                 await sortAndRenderData();
 
-                // Setup search functionality
-                setupSearchFunctionality();
-
                 loadingMessage.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error loading collage data:', error);
+                console.error('Error loading college data:', error);
                 loadingMessage.classList.add('hidden');
                 errorMessage.classList.remove('hidden');
                 errorMessage.innerHTML = `
-                    <strong>Failed to load collage data:</strong><br>
+                    <strong>Failed to load college data:</strong><br>
                     ${error.message}<br><br>
-                    <small>Please ensure CS.json is in the same directory as this HTML file and contains valid JSON data with the required fields: College Code, Name of College (SM and EW can be null)</small>
+                    <small>Please ensure CS.json is in the same directory and contains valid JSON data with at least 'College Code' and 'Name of College' fields.</small>
                 `;
             }
         }
 
+        /**
+         * Sorts the current data (filtered or original) based on SM rank and renders the table.
+         */
         async function sortAndRenderData() {
             const dataToSort = currentSearchTerm ? filteredData : originalData;
-            if (dataToSort.length === 0) return;
+            
+            if (dataToSort.length === 0) {
+                renderTable([]);
+                updateSearchInfo(0);
+                return;
+            }
 
-            // Filter out colleges with null SM values and sort
-            const validData = dataToSort.filter(college => 
-                college.SM !== null && college.SM !== undefined
+            const validSMData = dataToSort.filter(college => 
+                college.SM !== null && college.SM !== undefined && college.SM !== ''
+            );
+            const nullSMData = dataToSort.filter(college => 
+                college.SM === null || college.SM === undefined || college.SM === ''
             );
 
-            // Sort colleges based on the current sort order
-            const sortedData = [...validData].sort((a, b) => {
-                const aValue = parseInt(a.SM) || 0;
-                const bValue = parseInt(b.SM) || 0;
+            const sortedValidSMData = [...validSMData].sort((a, b) => {
+                const aValue = parseFloat(a.SM) || 0;
+                const bValue = parseFloat(b.SM) || 0;
                 
-                if (isAscendingSort) {
-                    return aValue - bValue; // Low to High
-                } else {
-                    return bValue - aValue; // High to Low
-                }
+                return isAscendingSort ? (aValue - bValue) : (bValue - aValue);
             });
 
-            // Add colleges with null SM values at the end
-            const nullSMData = dataToSort.filter(college => 
-                college.SM === null || college.SM === undefined
-            );
-
-            const finalData = [...sortedData, ...nullSMData];
+            const finalData = [...sortedValidSMData, ...nullSMData];
 
             await renderTable(finalData);
             updateSearchInfo(finalData.length);
         }
 
+        /**
+         * Filters the original data based on a search term.
+         * @param {string} searchTerm - The term to search for.
+         */
         function filterData(searchTerm) {
-            if (!searchTerm || searchTerm.trim() === '') {
-                filteredData = originalData;
-                currentSearchTerm = '';
-                return;
-            }
-
             currentSearchTerm = searchTerm.toLowerCase().trim();
-            filteredData = originalData.filter(college => {
-                const collegeName = (college['Name of College'] || '').toLowerCase();
-                return collegeName.includes(currentSearchTerm);
-            });
-        }
 
-        function updateSearchInfo(resultCount) {
-            const searchInfo = document.getElementById('search-results-info');
-            const resultsCount = document.getElementById('results-count');
-            
-            if (currentSearchTerm) {
-                searchInfo.classList.remove('hidden');
-                resultsCount.textContent = `Found ${resultCount} college${resultCount !== 1 ? 's' : ''} matching "${currentSearchTerm}"`;
+            if (!currentSearchTerm) {
+                filteredData = originalData;
             } else {
-                searchInfo.classList.add('hidden');
+                filteredData = originalData.filter(college => {
+                    const collegeName = (college['Name of College'] || '').toLowerCase();
+                    return collegeName.includes(currentSearchTerm);
+                });
             }
         }
 
-        function setupSearchFunctionality() {
-            const searchInput = document.getElementById('search-input');
-            const clearSearchButton = document.getElementById('clear-search');
-            let searchTimeout;
+        /**
+         * Updates the search results information message.
+         * @param {number} resultCount - The number of colleges found.
+         */
+        function updateSearchInfo(resultCount) {
+            if (currentSearchTerm) {
+                searchResultsInfo.classList.remove('hidden');
+                resultsCountSpan.textContent = `Found ${resultCount} college${resultCount !== 1 ? 's' : ''} matching "${currentSearchTerm}"`;
+            } else {
+                searchResultsInfo.classList.add('hidden');
+            }
+        }
 
-            // Real-time search with debounce
+        /**
+         * Sets up event listeners for search input and clear button.
+         */
+        function setupSearchFunctionality() {
             searchInput.addEventListener('input', (e) => {
                 const searchTerm = e.target.value;
                 
-                // Show/hide clear button
-                if (searchTerm.length > 0) {
-                    clearSearchButton.classList.remove('hidden');
-                } else {
-                    clearSearchButton.classList.add('hidden');
-                }
+                clearSearchButton.classList.toggle('hidden', searchTerm.length === 0);
 
-                // Debounce search to avoid too many filter operations
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     filterData(searchTerm);
@@ -416,7 +412,6 @@
                 }, 300);
             });
 
-            // Clear search functionality
             clearSearchButton.addEventListener('click', () => {
                 searchInput.value = '';
                 clearSearchButton.classList.add('hidden');
@@ -425,18 +420,19 @@
                 searchInput.focus();
             });
 
-            // Handle Enter key
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     clearTimeout(searchTimeout);
                     filterData(e.target.value);
                     sortAndRenderData();
+                    searchInput.blur();
                 }
             });
         }
 
-        // Initial load
+        // --- Initialize the page ---
         loadCollageData();
+        setupSearchFunctionality();
 
         // Toggle sorting on button click
         sortToggleButton.addEventListener('click', () => {
